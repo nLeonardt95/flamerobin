@@ -240,7 +240,7 @@ int main(int argc, char** argv)
         ok &= fr_test::check(!report.settings.empty(), "settings listed");
         ok &= fr_test::check(report.toMarkdown().Contains("<!-- FlameRobin benchmark results"),
             "markdown report with the results for comparisons");
-        ok &= fr_test::check(fr::parseBenchmarkSnapshot(report.toHtml()).has_value(),
+        ok &= fr_test::check(fr::parseBenchmarkSnapshot(report.toHtml()).ok(),
             "a saved report can be compared later");
     }
 
