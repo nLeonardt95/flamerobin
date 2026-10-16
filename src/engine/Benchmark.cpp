@@ -1825,6 +1825,27 @@ void BenchmarkStageTracker::finish(Outcome outcome, bool cleanupFailed)
         fractionM = 1.0;
 }
 
+int getBenchmarkAnimationInterval(const BenchmarkAnimationContext& context)
+{
+    // still in a quiet step, where nobody looks, in a remote session and
+    // where the user or the system turned animations off; the state is
+    // shown all the same
+    if (!context.running || context.quietStep || !context.windowVisible
+        || context.remoteSession || !context.systemAnimations || context.userDisabled)
+    {
+        return 0;
+    }
+    return std::max(benchmarkAnimationIntervalMs, benchmarkMinAnimationIntervalMs);
+}
+
+int getBenchmarkTimerInterval(const BenchmarkAnimationContext& context)
+{
+    if (!context.running)
+        return 0;
+    const int animation = getBenchmarkAnimationInterval(context);
+    return animation > 0 ? animation : benchmarkElapsedIntervalMs;
+}
+
 wxString getBenchmarkCategoryName(BenchmarkCategory category)
 {
     switch (category)

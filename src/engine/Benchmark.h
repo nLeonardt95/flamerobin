@@ -710,6 +710,35 @@ private:
 };
 
 ///
+/// What the animation of the progress depends on. It is small (4 pictures
+/// a second), but it must never take time from a measurement, and not
+/// send pictures over the network of a remote session.
+///
+struct BenchmarkAnimationContext
+{
+    bool running = false;           // a run is going on
+    bool quietStep = false;         // see BenchmarkStepPlan::quiet
+    bool windowVisible = true;      // the progress can be seen
+    bool remoteSession = false;     // e.g. Remote Desktop
+    bool systemAnimations = true;   // the system shows animations
+    bool userDisabled = false;      // FLAMEROBIN_NO_ANIMATION is set
+};
+
+/// the pictures of the animation: 4 a second, never more than 8
+const int benchmarkAnimationIntervalMs = 250;
+const int benchmarkMinAnimationIntervalMs = 125;
+/// the robin closes its eye once in this time
+const int benchmarkBlinkIntervalMs = 6000;
+/// without the animation the timer only shows the elapsed time
+const int benchmarkElapsedIntervalMs = 1000;
+
+/// the interval of the pictures in ms, 0 for no animation
+int getBenchmarkAnimationInterval(const BenchmarkAnimationContext& context);
+/// the interval of the one timer of the progress: the animation, or once a
+/// second for the elapsed time; 0 when no run is going on (it stops)
+int getBenchmarkTimerInterval(const BenchmarkAnimationContext& context);
+
+///
 /// Collected results of one benchmark run. A report can be partial when the
 /// run was cancelled or failed; errorMessage is set in the latter case.
 ///

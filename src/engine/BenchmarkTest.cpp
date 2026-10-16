@@ -623,6 +623,52 @@ void testStageStates()
         && early.getEndStage() == 0, "an error before the first step is one of the first stage");
 }
 
+void testAnimation()
+{
+    std::cout << "Animation of the progress\n";
+    BenchmarkAnimationContext normal;
+    normal.running = true;
+    check(getBenchmarkAnimationInterval(normal) == 250
+        && getBenchmarkTimerInterval(normal) == 250, "a run is animated with 4 pictures a "
+        "second");
+    // every combination: never faster than 8 pictures a second, and the
+    // timer runs only during a run
+    bool limit = true, stops = true, still = true;
+    for (int bits = 0; bits < 64; ++bits)
+    {
+        BenchmarkAnimationContext c;
+        c.running = bits & 1;
+        c.quietStep = bits & 2;
+        c.windowVisible = bits & 4;
+        c.remoteSession = bits & 8;
+        c.systemAnimations = bits & 16;
+        c.userDisabled = bits & 32;
+        const int animation = getBenchmarkAnimationInterval(c);
+        const int timer = getBenchmarkTimerInterval(c);
+        limit &= animation == 0 || animation >= benchmarkMinAnimationIntervalMs;
+        limit &= timer == 0 || timer >= benchmarkMinAnimationIntervalMs;
+        stops &= (timer == 0) == !c.running;
+        // animated only when nothing speaks against it
+        const bool allowed = c.running && !c.quietStep && c.windowVisible && !c.remoteSession
+            && c.systemAnimations && !c.userDisabled;
+        still &= (animation > 0) == allowed;
+        // without the animation the timer only shows the elapsed time
+        still &= animation > 0 || !c.running || timer == benchmarkElapsedIntervalMs;
+    }
+    check(limit && benchmarkMinAnimationIntervalMs >= 125, "the animation never has more "
+        "than 8 pictures a second");
+    check(stops, "the timer stops when no run is going on");
+    check(still, "no animation in a quiet step, unseen, in a remote session, without system "
+        "animations or when turned off; then only the elapsed time once a second");
+    BenchmarkAnimationContext remote = normal;
+    remote.remoteSession = true;
+    BenchmarkAnimationContext quiet = normal;
+    quiet.quietStep = true;
+    check(getBenchmarkAnimationInterval(remote) == 0 && getBenchmarkAnimationInterval(quiet)
+        == 0 && benchmarkBlinkIntervalMs % benchmarkAnimationIntervalMs == 0,
+        "a remote session and a quiet step are still; the blink falls on a picture");
+}
+
 // a run on the server itself with the embedded engine
 BenchmarkMetrics serverMetrics()
 {
@@ -4196,6 +4242,7 @@ int main(int argc, char** argv)
     testDurationHint();
     testStagePlan();
     testStageStates();
+    testAnimation();
     testHints();
     testEventTest();
     testSettings();
