@@ -61,7 +61,8 @@ private:
 class ResultTabArt : public wxAuiDefaultTabArt
 {
 public:
-    virtual wxAuiTabArt* Clone() override { return new ResultTabArt(*this); }
+    // a new one: wxWidgets 3.3 deletes the copy constructor of the flat tab art
+    virtual wxAuiTabArt* Clone() override { return new ResultTabArt(); }
     virtual void DrawTab(wxDC& dc, wxWindow* wnd, const wxAuiNotebookPage& page,
         const wxRect& rect, int closeButtonState, wxRect* outTabRect,
         wxRect* outButtonRect, int* xExtent) override
