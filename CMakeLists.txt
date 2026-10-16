@@ -201,6 +201,7 @@ list(APPEND SOURCE_LIST
         ${SOURCEDIR}/gui/BenchmarkDialog.cpp
         ${SOURCEDIR}/gui/BenchmarkProgressPanel.cpp
         ${SOURCEDIR}/gui/BenchmarkReportPage.cpp
+        ${SOURCEDIR}/gui/BenchmarkResultsView.cpp
         ${SOURCEDIR}/gui/CommandManager.cpp
         ${SOURCEDIR}/gui/ConfdefTemplateProcessor.cpp
         ${SOURCEDIR}/gui/ContextMenuMetadataItemVisitor.cpp
@@ -369,6 +370,7 @@ list(APPEND HEADER_LIST
         ${SOURCEDIR}/gui/BenchmarkDialog.h
         ${SOURCEDIR}/gui/BenchmarkProgressPanel.h
         ${SOURCEDIR}/gui/BenchmarkReportPage.h
+        ${SOURCEDIR}/gui/BenchmarkResultsView.h
         ${SOURCEDIR}/gui/CommandIds.h
         ${SOURCEDIR}/gui/CommandManager.h
         ${SOURCEDIR}/gui/ConfdefTemplateProcessor.h
