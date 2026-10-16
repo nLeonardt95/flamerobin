@@ -58,6 +58,12 @@ public:
     // removes the pages from memory and disk
     ~BenchmarkReportPage();
     void show(const wxString& html);
+    /// whether a page that has loaded is the one shown now, not one before
+    bool isShownPage(const wxString& url) const;
+    /// runs a script in the shown page and gives the value of its
+    /// expression as text; also with Internet Explorer, where
+    /// wxWebView::RunScript() does not work for these pages
+    bool runScript(const wxString& expression, wxString* result);
 
 private:
     wxWebView* viewM;
@@ -75,6 +81,9 @@ private:
 
     void showFromFile();
     bool load(const wxString& url);
+#ifdef __WXMSW__
+    bool runScriptInExplorer(const wxString& expression, wxString* result);
+#endif
     void OnNavigating(wxWebViewEvent& event);
     void OnError(wxWebViewEvent& event);
     void OnLoaded(wxWebViewEvent& event);

@@ -36,6 +36,7 @@
 // WIN32_LEAN_AND_MEAN leaves out the COM declarations that exdisp.h needs
 #include <ole2.h>
 #include <exdisp.h>
+#include <mshtml.h>
 #endif
 #endif
 
@@ -160,6 +161,62 @@ bool BenchmarkReportPage::load(const wxString& url)
     return true;
 #endif
 }
+
+bool BenchmarkReportPage::isShownPage(const wxString& url) const
+{
+    // the other web views get the page directly
+    return !loadM || (!nameM.empty() && url.Contains(nameM));
+}
+
+bool BenchmarkReportPage::runScript(const wxString& expression, wxString* result)
+{
+#ifdef __WXMSW__
+    if (loadM)
+        return runScriptInExplorer(expression, result);
+#endif
+    return viewM->RunScript(expression, result);
+}
+
+#ifdef __WXMSW__
+// the value of the expression comes back in the title of the document,
+// which the dialog does not show
+bool BenchmarkReportPage::runScriptInExplorer(const wxString& expression,
+    wxString* result)
+{
+    IWebBrowser2* browser = static_cast<IWebBrowser2*>(viewM->GetNativeBackend());
+    IDispatch* dispatch = nullptr;
+    if (!browser || FAILED(browser->get_Document(&dispatch)) || !dispatch)
+        return false;
+    IHTMLDocument2* document = nullptr;
+    dispatch->QueryInterface(IID_IHTMLDocument2, reinterpret_cast<void**>(&document));
+    dispatch->Release();
+    if (!document)
+        return false;
+    bool done = false;
+    IHTMLWindow2* window = nullptr;
+    if (SUCCEEDED(document->get_parentWindow(&window)) && window)
+    {
+        const wxString code = "document.title = (function() { try { return String("
+            + expression + "); } catch (e) { return ''; } })()";
+        BSTR codeText = ::SysAllocString(code.wc_str());
+        BSTR language = ::SysAllocString(L"JavaScript");
+        VARIANT value;
+        ::VariantInit(&value);
+        done = SUCCEEDED(window->execScript(codeText, language, &value));
+        ::VariantClear(&value);
+        ::SysFreeString(codeText);
+        ::SysFreeString(language);
+        BSTR title = nullptr;
+        if (done && result && SUCCEEDED(document->get_title(&title)))
+            *result = title ? wxString(title) : wxString();
+        if (title)
+            ::SysFreeString(title);
+        window->Release();
+    }
+    document->Release();
+    return done;
+}
+#endif
 
 void BenchmarkReportPage::removeOldPages()
 {
