@@ -182,6 +182,7 @@ list(APPEND SOURCE_LIST
         ${SOURCEDIR}/engine/BenchmarkAnalyzer.cpp
         ${SOURCEDIR}/engine/BenchmarkCompare.cpp
         ${SOURCEDIR}/engine/BenchmarkHtml.cpp
+        ${SOURCEDIR}/engine/BenchmarkResults.cpp
         ${SOURCEDIR}/engine/BenchmarkRunner.cpp
         ${SOURCEDIR}/engine/BenchmarkSql.cpp
         ${SOURCEDIR}/engine/BenchmarkSystemInfo.cpp
@@ -353,6 +354,7 @@ list(APPEND HEADER_LIST
         ${SOURCEDIR}/core/URIProcessor.h
         ${SOURCEDIR}/core/Visitor.h
         ${SOURCEDIR}/engine/Benchmark.h
+        ${SOURCEDIR}/engine/BenchmarkResults.h
         ${SOURCEDIR}/engine/BenchmarkRunner.h
         ${SOURCEDIR}/engine/BenchmarkSystemInfo.h
         ${SOURCEDIR}/engine/MetadataLoader.h
@@ -1134,6 +1136,7 @@ add_executable(benchmark_test
     ${SOURCEDIR}/engine/BenchmarkAnalyzer.cpp
     ${SOURCEDIR}/engine/BenchmarkCompare.cpp
     ${SOURCEDIR}/engine/BenchmarkHtml.cpp
+    ${SOURCEDIR}/engine/BenchmarkResults.cpp
     ${SOURCEDIR}/engine/BenchmarkSql.cpp
     ${SOURCEDIR}/engine/BenchmarkSystemInfo.cpp
     ${SOURCEDIR}/engine/BenchmarkSystemReport.cpp
