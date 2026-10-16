@@ -401,6 +401,18 @@ wxString describeBenchmarkResult(const BenchmarkResultEntry& entry)
     }
 }
 
+wxString getBenchmarkResultSummary(const BenchmarkResultEntry& entry)
+{
+    wxString text;
+    for (const wxString& part : { getTime(entry.snapshot.date),
+        getIntensityName(entry.snapshot.intensity), getKindWord(entry.snapshot.kind) })
+    {
+        if (!part.empty())
+            text += (text.empty() ? "" : ", ") + part;
+    }
+    return text;
+}
+
 wxString getBenchmarkResultHeader(const BenchmarkResultEntry& entry)
 {
     switch (entry.kind)

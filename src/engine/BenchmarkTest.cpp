@@ -4317,6 +4317,8 @@ void testResults()
         "descriptions and the header of a test and of a file");
     check(getBenchmarkResultFileName(*a) == "flamerobin-benchmark-1-20261014-0955.html",
         "a test is saved with its number and time");
+    check(getBenchmarkResultSummary(*results.find(second)) == "10:31, Quick, client",
+        "a test in a few words, for the question before it is closed");
 
     // saved and unsaved
     check(results.getUnsavedIds() == std::vector<int>({ first, second }) && f->saved,

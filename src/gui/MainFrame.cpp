@@ -43,6 +43,7 @@
 #include "core/Subject.h"
 #include "core/URIProcessor.h"
 #include "engine/db/DatabaseBackend.h"
+#include "engine/BenchmarkResults.h"
 #include "engine/db/DatabaseFactory.h"
 #include "frutils.h"
 #include "gui/AboutBox.h"
@@ -159,7 +160,8 @@ public:
 MainFrame::MainFrame(wxWindow* parent, int id, const wxString& title,
         const wxPoint& pos, const wxSize& size, long style)
     : BaseFrame(parent, id, title, pos, size, style, "FlameRobin_main"),
-        rootM(new Root()), databaseMenuFixedItemsM(0)
+        rootM(new Root()), benchmarkResultsM(new fr::BenchmarkResultStore()),
+        databaseMenuFixedItemsM(0)
 {
     wxArtProvider::Push(new ArtProvider);
 
@@ -800,8 +802,26 @@ void MainFrame::OnTreeItemActivate(wxTreeEvent& event)
 #endif
 }
 
+MainFrame::~MainFrame()
+{
+}
+
 bool MainFrame::doCanClose()
 {
+    // the results of the benchmark are only kept in memory: asked once,
+    // before any other window is closed
+    const std::vector<int> unsaved = benchmarkResultsM->getUnsavedIds();
+    if (!unsaved.empty())
+    {
+        const int count = int(unsaved.size());
+        wxMessageDialog question(this, wxString::Format(wxPLURAL("%d benchmark result is "
+            "not saved (%s). Quit anyway?", "%d benchmark results are not saved (%s). Quit "
+            "anyway?", count), count, fr::formatBenchmarkResultIds(unsaved)),
+            _("Performance Benchmark & Diagnosis"), wxYES_NO | wxNO_DEFAULT | wxICON_QUESTION);
+        question.SetYesNoLabels(_("&Quit"), _("Cancel"));
+        if (question.ShowModal() != wxID_YES)
+            return false;
+    }
     std::vector<BaseFrame*> frames(BaseFrame::getFrames());
     for (std::vector<BaseFrame*>::iterator it = frames.begin();
         it != frames.end(); it++)
@@ -2853,7 +2873,7 @@ void MainFrame::OnMenuBenchmarkTest(wxCommandEvent& WXUNUSED(event))
     // works in its own temporary database. Without a selected database,
     // this computer can be tested without a login.
     DatabasePtr db = getDatabase(treeMainM->getSelectedMetadataItem());
-    BenchmarkDialog bd(this, db.get());
+    BenchmarkDialog bd(this, db.get(), *benchmarkResultsM);
     bd.ShowModal();
 }
 
