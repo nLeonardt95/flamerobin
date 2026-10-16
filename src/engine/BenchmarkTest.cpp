@@ -4176,7 +4176,7 @@ void testFixtures(const wxString& dir)
         "a report of a later minor format: unknown lines skipped, unknown values listed "
         "in their part");
 
-    // two saved reports, like "Compare two reports..."
+    // two saved reports, like "Compare..."
     BenchmarkMetrics faster = clientFixture().metrics;
     faster.commitMs = 0.75;
     faster.insertMs = 425.0;
